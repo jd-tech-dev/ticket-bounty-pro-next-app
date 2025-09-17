@@ -8,21 +8,16 @@ import {
   toActionState,
 } from '@/components/form/utils/to-action-state';
 import { verifyPasswordHash } from '@/features/password/utils/hash-and-verify';
-import { createSession } from '@/lib/lucia';
+import { createSession } from '@/lib/oslo';
 import prisma from '@/lib/prisma';
 import { ticketsPath } from '@/paths';
 import { generateRandomToken } from '@/utils/crypto';
+import { emailFragment, passwordFragment } from '@/utils/schemaFragments';
 import { setSessionCookie } from '../utils/session-cookie';
 
 const signInSchema = z.object({
-  email: z.email('Please enter a valid email address'),
-  password: z
-    .string()
-    .nonempty({ message: 'Password is required' })
-    .min(6, {
-      message: 'Password must be at least 6 characters long',
-    })
-    .max(100),
+  ...emailFragment(),
+  ...passwordFragment(),
 });
 
 export const signIn = async (_actionState: ActionState, formData: FormData) => {
@@ -35,13 +30,12 @@ export const signIn = async (_actionState: ActionState, formData: FormData) => {
       where: { email },
     });
 
-    if (!user) {
-      return toActionState('ERROR', 'Incorrect email or password', formData);
-    }
+    const validPassword = await verifyPasswordHash(
+      user ? user.passwordHash : '&argon',
+      password
+    );
 
-    const validPassword = await verifyPasswordHash(user.passwordHash, password);
-
-    if (!validPassword) {
+    if (!user || !validPassword) {
       return toActionState('ERROR', 'Incorrect email or password', formData);
     }
 

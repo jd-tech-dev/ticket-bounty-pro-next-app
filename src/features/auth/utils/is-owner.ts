@@ -1,6 +1,5 @@
 import { User } from '@/generated/prisma';
 
-// This is sometnig like a ticket or a comment
 type Entity = {
   userId: string | null;
 };

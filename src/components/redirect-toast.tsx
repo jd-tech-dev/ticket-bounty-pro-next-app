@@ -1,24 +1,46 @@
 'use client';
 
+import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useEffect } from 'react';
 import { toast } from 'sonner';
 import { consumeCookiedByKey } from '@/actions/cookies';
 
+const tryParseJsonObject = (value: string) => {
+  try {
+    return JSON.parse(value);
+  } catch {
+    return value;
+  }
+};
+
 const RedirectToast = () => {
-  const pathName = usePathname();
+  const pathname = usePathname();
 
   useEffect(() => {
     const showCookieToast = async () => {
       const message = await consumeCookiedByKey('toast');
 
       if (message) {
-        toast.success(message);
+        const toastData = tryParseJsonObject(message);
+
+        toast.success(
+          typeof toastData === 'string' ? (
+            message
+          ) : (
+            <span>
+              {toastData.message} -{' '}
+              <Link href={toastData.link} className="underline">
+                view
+              </Link>
+            </span>
+          )
+        );
       }
     };
 
     showCookieToast();
-  }, [pathName]);
+  }, [pathname]);
 
   return null;
 };

@@ -1,19 +1,22 @@
+import { PAGE_SIZES } from '@/components/pagination/constants';
 import { getAuth } from '@/features/auth/queries/get-auth';
 import { isOwner } from '@/features/auth/utils/is-owner';
+import { getActiveOrganization } from '@/features/organization/queries/get-active-organization';
+import { getOrganizationsByUser } from '@/features/organization/queries/get-organizations-by-user';
 import prisma from '@/lib/prisma';
 import { ParsedSearchParams } from '../search-params';
 
 export const getTickets = async (
   userId: string | undefined,
+  byOrganization: boolean,
   searchParams: ParsedSearchParams
 ) => {
-  /* When userId is undefined, Prisma treats it as if no filter was 
-  applied and returns everyting. Usually a fast failing would be added
-  like an empty return ([]) when userId is undefined. The way we are
-  using this function, we want the return of all options, so I added 
-  the explicit condition to the query. Title filtering acts the same 
-  but it should always be present.*/
   const { user } = await getAuth();
+  const activeOrganization = await getActiveOrganization();
+
+  if (!PAGE_SIZES.includes(searchParams.size)) {
+    throw new Error('Invalid page size');
+  }
 
   const where = {
     title: {
@@ -24,6 +27,10 @@ export const getTickets = async (
     ...(userId && {
       userId,
     }),
+
+    ...(byOrganization && activeOrganization
+      ? { organizationId: activeOrganization.id }
+      : {}),
   };
 
   const skip = searchParams.page * searchParams.size;
@@ -50,12 +57,23 @@ export const getTickets = async (
     }),
   ]);
 
-  // follows naming convention for this kind of return
+  const organizationByUser = await getOrganizationsByUser();
+
   return {
-    list: tickets.map((ticket) => ({
-      ...ticket,
-      isOwner: isOwner(user, ticket),
-    })),
+    list: tickets.map((ticket) => {
+      const organization = organizationByUser.find(
+        (organization) => organization.id === ticket.organizationId
+      );
+      return {
+        ...ticket,
+        isOwner: isOwner(user, ticket),
+        permissions: {
+          canDeleteTicket:
+            isOwner(user, ticket) &&
+            !!organization?.membershipByUser.canDeleteTicket,
+        },
+      };
+    }),
     metadata: {
       count,
       hasNextPage: count > skip + take,

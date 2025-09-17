@@ -26,14 +26,13 @@ const SidebarItem = ({ isOpen, isActive, navItem }: SidebarItemProps) => {
           )}
         >
           {cloneElement(navItem.icon as ReactElement<{ className?: string }>, {
-            className: 'size-7',
+            className: 'size-6',
           })}
           <span
             className={cn(
               'absolute left-12 text-base duration-200',
               isOpen ? 'md:block hidden' : 'w-[78px]',
               !isOpen && closedClassName,
-              // Add clip path when collapsed
               !isOpen && 'clip-path-inherit'
             )}
           >

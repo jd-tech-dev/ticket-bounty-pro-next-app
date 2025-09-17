@@ -9,38 +9,25 @@ import {
 } from '@/components/form/utils/to-action-state';
 import { hashPassword } from '@/features/password/utils/hash-and-verify';
 import { Prisma } from '@/generated/prisma';
-import { createSession } from '@/lib/lucia';
+import { inngest } from '@/lib/inngest';
+import { createSession } from '@/lib/oslo';
 import prisma from '@/lib/prisma';
 import { ticketsPath } from '@/paths';
 import { generateRandomToken } from '@/utils/crypto';
+import {
+  confirmPasswordFragment,
+  emailFragment,
+  passwordFragment,
+  usernameFragment,
+} from '@/utils/schemaFragments';
 import { setSessionCookie } from '../utils/session-cookie';
 
 const signUpSchema = z
   .object({
-    username: z
-      .string()
-      .min(2, {
-        message: 'Username must be at least 2 characters long',
-      })
-      .max(100)
-      .refine((value) => !value.includes(' '), {
-        message: 'Username cannot contain spaces',
-        path: ['username'],
-      }),
-    email: z.email('Please enter a valid email address'),
-    password: z
-      .string()
-      .nonempty({ message: 'Password is required' })
-      .min(6, {
-        message: 'Password must be at least 6 characters long',
-      })
-      .max(100),
-    confirmPassword: z
-      .string()
-      .min(6, {
-        message: 'ConfirmPassword must be at least 6 characters long',
-      })
-      .max(100),
+    ...usernameFragment(),
+    ...emailFragment(),
+    ...passwordFragment(),
+    ...confirmPasswordFragment(),
   })
   .partial()
   .refine(
@@ -59,15 +46,50 @@ export const signUp = async (_actionState: ActionState, formData: FormData) => {
   try {
     const { username, email, password } = signUpSchema.parse(
       Object.fromEntries(formData)
-    );
+    ) as {
+      username: string;
+      email: string;
+      password: string;
+    };
 
-    const passwordHash = await hashPassword(password as string);
+    const passwordHash = await hashPassword(password);
 
     const user = await prisma.user.create({
       data: {
-        username: username as string,
-        email: email as string,
+        username: username,
+        email: email,
         passwordHash,
+      },
+    });
+
+    const invitations = await prisma.invitation.findMany({
+      where: {
+        email,
+        status: 'ACCEPTED_WITHOUT_ACCOUNT',
+      },
+    });
+
+    await prisma.$transaction([
+      prisma.invitation.deleteMany({
+        where: {
+          email,
+          status: 'ACCEPTED_WITHOUT_ACCOUNT',
+        },
+      }),
+      prisma.membership.createMany({
+        data: invitations.map((invitation) => ({
+          organizationId: invitation.organizationId,
+          userId: user.id,
+          membershipRole: 'MEMBER',
+          isActive: false,
+        })),
+      }),
+    ]);
+
+    await inngest.send({
+      name: 'app/auth.sign-up',
+      data: {
+        userId: user.id,
       },
     });
 

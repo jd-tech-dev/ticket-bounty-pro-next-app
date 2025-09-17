@@ -1,6 +1,6 @@
 'use client';
 
-// Since QueryClientProvider relies on useContext under the hood, we have to put 'use client' on top
+// Since QueryClientProvider relies on useContext under the hood, the 'use client' is needed
 import {
   isServer,
   QueryClient,
@@ -11,8 +11,8 @@ function makeQueryClient() {
   return new QueryClient({
     defaultOptions: {
       queries: {
-        // With SSR, we usually want to set some default staleTime
-        // above 0 to avoid refetching immediately on the client
+        // With SSR, some default staleTime above 0 is desired
+        // to avoid refetching immediately on the client
         staleTime: 60 * 1000,
       },
     },
@@ -27,9 +27,9 @@ function getQueryClient() {
     return makeQueryClient();
   } else {
     // Browser: make a new query client if we don't already have one
-    // This is very important, so we don't re-make a new client if React
-    // suspends during the initial render. This may not be needed if we
-    // have a suspense boundary BELOW the creation of the query client
+    // this is important to not re-make a new client if React
+    // suspends during the initial render. This may not be needed if
+    // a suspense boundary BELOW the creation of the query client is present
     if (!browserQueryClient) browserQueryClient = makeQueryClient();
     return browserQueryClient;
   }

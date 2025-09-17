@@ -7,10 +7,12 @@ const users = [
   {
     username: 'admin',
     email: 'admin@gmail.com',
+    emailVerified: true,
   },
   {
     username: 'user',
-    email: 'test@test.com',
+    email: 'yourtestmail900@gmail.com',
+    emailVerified: true,
   },
 ];
 
@@ -45,13 +47,21 @@ const comments = [
 ];
 
 const seed = async () => {
-  console.time('Total Seeding Time:');
+  console.time('Prisma Total Seeding Time:');
 
   await prisma.comment.deleteMany();
   await prisma.ticket.deleteMany();
   await prisma.user.deleteMany();
+  await prisma.organization.deleteMany();
+  await prisma.membership.deleteMany();
 
-  const passwordHash = await hash('geheimnis');
+  const dbOrganization = await prisma.organization.create({
+    data: {
+      name: 'Organization 1',
+    },
+  });
+
+  const passwordHash = await hash('tajomstvo');
 
   const dbUsers = await prisma.user.createManyAndReturn({
     data: users.map((user) => ({
@@ -60,10 +70,28 @@ const seed = async () => {
     })),
   });
 
+  await prisma.membership.createMany({
+    data: [
+      {
+        userId: dbUsers[0].id,
+        organizationId: dbOrganization.id,
+        isActive: true,
+        membershipRole: 'ADMIN',
+      },
+      {
+        userId: dbUsers[1].id,
+        organizationId: dbOrganization.id,
+        isActive: false,
+        membershipRole: 'MEMBER',
+      },
+    ],
+  });
+
   const dbTickets = await prisma.ticket.createManyAndReturn({
     data: tickets.map((ticket) => ({
       ...ticket,
       userId: dbUsers[0].id,
+      organizationId: dbOrganization.id,
     })),
   });
 
@@ -75,7 +103,7 @@ const seed = async () => {
     })),
   });
 
-  console.timeEnd('Total Seeding Time:');
+  console.timeEnd('Prisma Total Seeding Time:');
 };
 
 seed();

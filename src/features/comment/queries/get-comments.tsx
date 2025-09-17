@@ -1,8 +1,10 @@
 'use server';
 
+import { getAuth } from '@/features/auth/queries/get-auth';
 import { isOwner } from '@/features/auth/utils/is-owner';
-import { getAuth } from '@/features/ticket/queries/get-auth';
 import prisma from '@/lib/prisma';
+
+const COMMENT_DEFAULT_TAKE_SIZE = 2;
 
 export const getComments = async (
   ticketId: string,
@@ -14,7 +16,7 @@ export const getComments = async (
     ticketId,
   };
 
-  const take = 2;
+  const take = COMMENT_DEFAULT_TAKE_SIZE;
 
   const result = await prisma.$transaction([
     prisma.comment.findMany({
@@ -30,6 +32,7 @@ export const getComments = async (
             username: true,
           },
         },
+        attachments: true,
       },
       orderBy: [{ createdAt: 'desc' }, { id: 'desc' }],
     }),

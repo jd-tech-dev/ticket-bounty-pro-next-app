@@ -30,7 +30,6 @@ const TicketPagination = ({
     prevSearch.current = search;
 
     setPagination({ ...pagination, page: 0 });
-    // add more reactive effects here once needed
   }, [pagination, search, setPagination]);
 
   return (

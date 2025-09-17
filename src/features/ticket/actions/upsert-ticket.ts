@@ -21,7 +21,7 @@ const upsertTicketSchema = z.object({
     .nonempty({ message: 'Title is required' })
     .trim()
     .min(3, { message: 'Title must be at least 3 characters long' })
-    .max(200, { message: 'Title cannot exceed 200 characters' }), // I want max 200
+    .max(200, { message: 'Title cannot exceed 200 characters' }), // 200 is enough for a title
   content: z
     .string()
     .nonempty({ message: 'Content is required' })
@@ -29,7 +29,7 @@ const upsertTicketSchema = z.object({
     .min(10, {
       message: 'Content must be at least 10 characters long',
     })
-    .max(1024, { message: 'Content cannot exceed 1024 characters' }), // as per db schema
+    .max(1024, { message: 'Content cannot exceed 1024 characters' }), // 1024 as per db schema
   deadline: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, 'Is required'),
   bounty: z.coerce.number().positive(),
 });
@@ -39,11 +39,11 @@ export const upsertTicket = async (
   _actionState: ActionState,
   formData: FormData
 ) => {
-  const { user } = await getAuthOrRedirect();
+  const { user, activeOrganization } = await getAuthOrRedirect();
 
   try {
     if (id) {
-      // updates have id and are changing data => authorization needed
+      // Updates have id and are changing data => authorization needed
       const ticket = await prisma.ticket.findUnique({
         where: {
           id,
@@ -73,7 +73,7 @@ export const upsertTicket = async (
         id: id || '',
       },
       update: dbData,
-      create: dbData,
+      create: { ...dbData, organizationId: activeOrganization!.id },
     });
   } catch (error) {
     return fromErrorToActionState(error, formData);

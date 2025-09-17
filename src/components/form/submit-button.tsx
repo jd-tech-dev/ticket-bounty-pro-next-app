@@ -18,15 +18,12 @@ type SubmitButtonProps = {
     | 'link';
   size?: 'default' | 'sm' | 'lg' | 'icon';
   pendingAction?: boolean;
+  disabled?: boolean;
 };
 
-/**
- * SubmitButton Component
- *
- * Handles form submission states with optional external pending control.
- * When external pendingAction is present, it takes precedence over the
- * internal pendingSubmit sourced from the useFormStatus hook.
- */
+/* Handles form submission states with optional external pending control.
+  When external pendingAction is present, it takes precedence over the
+  internal pendingSubmit sourced from the useFormStatus hook. */
 
 const SubmitButton = ({
   label,
@@ -34,39 +31,36 @@ const SubmitButton = ({
   variant = 'default',
   size = 'default',
   pendingAction,
+  disabled,
 }: SubmitButtonProps) => {
-  const { pending: pendingSubmit } = useFormStatus(); // only tracks submission
+  const { pending: pendingSubmit } = useFormStatus(); // Only tracks submission
 
   const pending = pendingAction ?? pendingSubmit;
 
   return (
     <Button
-      disabled={pending}
+      disabled={disabled || pending}
       type="submit"
       aria-busy={pending}
       aria-label={`${label}${pending ? ' (loading)' : ''}`}
       variant={variant}
       size={size}
     >
-      {pending && (
-        <LucideLoaderCircle
-          className={clsx('size-4 animate-spin', {
-            'mr-0.5': !!label,
-          })}
-        />
-      )}
-      {label}
-      {pending ? null : icon ? (
-        <span
-          className={clsx({
-            'ml-0.5': !!label,
-          })}
-        >
-          {cloneElement(icon, {
-            className: 'size-4',
-          })}
-        </span>
-      ) : null}
+      <div className="flex items-center gap-1">
+        {pending ? (
+          <LucideLoaderCircle
+            className={clsx('size-4 animate-spin', label && 'mr-1')}
+          />
+        ) : (
+          <span className={clsx(label && 'mr-1')}>
+            {icon &&
+              cloneElement(icon, {
+                className: 'size-4',
+              })}
+          </span>
+        )}
+        {label}
+      </div>
     </Button>
   );
 };

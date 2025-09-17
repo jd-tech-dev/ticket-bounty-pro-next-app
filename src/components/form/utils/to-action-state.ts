@@ -19,7 +19,6 @@ export const fromErrorToActionState = <T = unknown>(
   error: unknown,
   formData?: FormData
 ): ActionState<T> => {
-  // for validation error with Zod
   if (error instanceof z.ZodError) {
     return {
       status: 'ERROR',
@@ -27,7 +26,7 @@ export const fromErrorToActionState = <T = unknown>(
       payload: formData,
       fieldErrors: z.flattenError(error).fieldErrors,
       timestamp: Date.now(),
-    }; // for DB or ORM error
+    };
   } else if (error instanceof Error) {
     return {
       status: 'ERROR',
@@ -36,7 +35,6 @@ export const fromErrorToActionState = <T = unknown>(
       fieldErrors: {},
       timestamp: Date.now(),
     };
-    // if not an error instance but something else crashed
   } else {
     return {
       status: 'ERROR',

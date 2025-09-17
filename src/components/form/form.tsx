@@ -1,4 +1,4 @@
-import { toast } from 'sonner';
+import { toast, ToastT } from 'sonner';
 import { useActionFeedback } from './hooks/use-action-feedback';
 import { ActionState } from './utils/to-action-state';
 
@@ -8,6 +8,7 @@ type FormProps<T = unknown> = {
   children: React.ReactNode;
   onSuccess?: (actionState: ActionState<T>) => void;
   onError?: (acionState: ActionState) => void;
+  toastOptions?: Omit<ToastT, 'id'> | undefined;
 };
 
 const Form = <T,>({
@@ -16,15 +17,15 @@ const Form = <T,>({
   children,
   onSuccess,
   onError,
+  toastOptions,
 }: FormProps<T>) => {
-  // object used for second parameter cuz we might not always need to pass both functions
   useActionFeedback(actionState, {
     onSuccess: ({ actionState }) => {
-      if (actionState.message) toast.success(actionState.message);
+      if (actionState.message) toast.success(actionState.message, toastOptions);
       onSuccess?.(actionState);
     },
     onError: ({ actionState }) => {
-      if (actionState.message) toast.error(actionState.message);
+      if (actionState.message) toast.error(actionState.message, toastOptions);
       onError?.(actionState);
     },
   });
