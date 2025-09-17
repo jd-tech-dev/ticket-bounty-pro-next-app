@@ -29,17 +29,17 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
-import { Ticket, TicketStatus } from '@/generated/prisma';
+import { TicketStatus } from '@/generated/prisma';
 import { deleteTicket } from '../actions/delete-ticket';
 import { updateTicketStatus } from '../actions/update-ticket-status';
 import { TICKET_STATUS_LABELS } from '../constants';
+import { TicketWithMetadata } from '../types';
 
 type TicketMoreMenuProps = {
-  ticket: Ticket;
+  ticket: TicketWithMetadata;
   trigger: ReactElement<{ onClick?: () => void }>;
 };
-/* TODO Lesson -> Confirm Dialog from Dropdown (Advanced) - needs a second pass, 
-leson out of date, results in error: `MenuItem` must be used within `Menu`. */
+
 const TicketMoreMenu = ({ ticket, trigger }: TicketMoreMenuProps) => {
   const [menuOpen, setMenuOpen] = useState(false);
 
@@ -63,7 +63,9 @@ const TicketMoreMenu = ({ ticket, trigger }: TicketMoreMenuProps) => {
 
     const handleOpen = (status: boolean): void => {
       setOpen(status);
-      setMenuOpen(status);
+      requestAnimationFrame(() => {
+        setMenuOpen(status);
+      });
     };
 
     return (
@@ -73,6 +75,7 @@ const TicketMoreMenu = ({ ticket, trigger }: TicketMoreMenuProps) => {
           onClick={() => {
             handleOpen(true);
           }}
+          disabled={!ticket.permissions.canDeleteTicket}
         >
           <div className="flex items-center">
             <LucideTrash className="mr-2 size-4 text-destructive" />

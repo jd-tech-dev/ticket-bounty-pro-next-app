@@ -4,7 +4,7 @@ import { usePathname } from 'next/navigation';
 import { useState } from 'react';
 import { useAuth } from '@/features/auth/hooks/use-auth';
 import { cn } from '@/lib/utils';
-import { signInPath, signUpPath } from '@/paths';
+import { pricingPath, signInPath, signUpPath } from '@/paths';
 import { getActivePath } from '@/utils/get-active-paths';
 import { navItems } from '../constants';
 import { SidebarItem } from './sidebar-item';
@@ -18,7 +18,7 @@ const Sidebar = () => {
   const { activeIndex } = getActivePath(
     pathName,
     navItems.map((item) => item.href),
-    [signInPath(), signUpPath()]
+    [signInPath(), signUpPath(), pricingPath()]
   );
 
   const handleToggle = (open: boolean) => {
@@ -28,7 +28,7 @@ const Sidebar = () => {
   };
 
   if (!user || !isFetched) {
-    // return just to avoid layout shift
+    // Return to avoid layout shift
     return <div className="w-[78px] bg-secondary/20 absolute" />;
   }
 

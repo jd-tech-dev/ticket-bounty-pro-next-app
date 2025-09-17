@@ -9,12 +9,17 @@ import { TicketSortSelect } from './ticket-sort-select';
 
 type TicketListProps = {
   userId?: string;
+  byOrganization?: boolean;
   searchParams: ParsedSearchParams;
 };
 
-const TicketList = ({ userId, searchParams }: TicketListProps) => {
+const TicketList = ({
+  userId,
+  byOrganization = false,
+  searchParams,
+}: TicketListProps) => {
   const { list: tickets, metadata: ticketMetadata } = use(
-    getTickets(userId, searchParams)
+    getTickets(userId, byOrganization, searchParams)
   );
   return (
     <div className="flex-1 flex flex-col items-center gap-y-4 animate-fade-in-from-top">

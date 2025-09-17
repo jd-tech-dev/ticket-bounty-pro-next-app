@@ -1,3 +1,5 @@
+'use client';
+
 import clsx from 'clsx';
 import {
   LucideMoreVertical,
@@ -14,27 +16,27 @@ import {
   CardHeader,
   CardTitle,
 } from '@/components/ui/card';
-import { Prisma } from '@/generated/prisma';
 import { ticketEditPath, ticketPath } from '@/paths';
 import { toCurrencyFromCent } from '@/utils/currency';
 import { TICKET_ICONS } from '../constants';
+import { TicketWithMetadata } from '../types';
 import { TicketMoreMenu } from './ticket-more-menu';
 
 type TicketItemProps = {
-  ticket: Prisma.TicketGetPayload<{
-    include: {
-      user: {
-        select: {
-          username: true;
-        };
-      };
-    };
-  }> & { isOwner: boolean };
+  ticket: TicketWithMetadata;
   isDetail?: boolean;
+  attachmets?: ReactNode;
+  referencedTickets?: ReactNode;
   comments?: ReactNode;
 };
 
-const TicketItem = ({ ticket, isDetail, comments }: TicketItemProps) => {
+const TicketItem = ({
+  ticket,
+  isDetail,
+  comments,
+  attachmets,
+  referencedTickets,
+}: TicketItemProps) => {
   const detailButton = (
     <Button variant="outline" size="icon" asChild>
       <Link prefetch href={ticketPath(ticket.id)}>
@@ -111,6 +113,8 @@ const TicketItem = ({ ticket, isDetail, comments }: TicketItemProps) => {
           )}
         </div>
       </div>
+      {attachmets}
+      {referencedTickets}
       {comments}
     </div>
   );

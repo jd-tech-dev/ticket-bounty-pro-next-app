@@ -1,3 +1,4 @@
+import { useTransition } from 'react';
 import { PaginatedData } from '@/types/pagination';
 import { Button } from '../ui/button';
 import {
@@ -7,6 +8,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '../ui/select';
+import { PAGE_SIZES } from './constants';
 
 type PageAndSize = {
   page: number;
@@ -34,18 +36,24 @@ const Pagination = ({
     onPagination({ ...pagination, page: pagination.page - 1 });
   };
 
+  const [isPending, startTransition] = useTransition();
+
   const handleNextPage = () => {
-    onPagination({ ...pagination, page: pagination.page + 1 });
+    startTransition(() => {
+      onPagination({ ...pagination, page: pagination.page + 1 });
+    });
   };
 
   const handleChangeSize = (size: string) => {
-    onPagination({ page: 0, size: parseInt(size) });
+    startTransition(() => {
+      onPagination({ page: 0, size: parseInt(size) });
+    });
   };
 
   const previousButton = (
     <Button
       variant="outline"
-      disabled={pagination.page < 1}
+      disabled={pagination.page < 1 || isPending}
       onClick={handlePreviousPage}
     >
       Previous
@@ -53,7 +61,11 @@ const Pagination = ({
   );
 
   const nextButton = (
-    <Button variant="outline" disabled={!hasNextPage} onClick={handleNextPage}>
+    <Button
+      variant="outline"
+      disabled={!hasNextPage || isPending}
+      onClick={handleNextPage}
+    >
       Next
     </Button>
   );
@@ -67,12 +79,11 @@ const Pagination = ({
         <SelectValue />
       </SelectTrigger>
       <SelectContent>
-        <SelectItem value="3">3</SelectItem>
-        <SelectItem value="5">5</SelectItem>
-        <SelectItem value="10">10</SelectItem>
-        <SelectItem value="25">25</SelectItem>
-        <SelectItem value="50">50</SelectItem>
-        <SelectItem value="100">100</SelectItem>
+        {PAGE_SIZES.map((size) => (
+          <SelectItem key={size} value={size.toString()}>
+            {size}
+          </SelectItem>
+        ))}
       </SelectContent>
     </Select>
   );

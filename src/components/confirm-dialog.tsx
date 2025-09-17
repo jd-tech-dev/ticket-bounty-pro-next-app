@@ -29,7 +29,6 @@ type UseConfirmDialogArgs = {
     | ((isPending: boolean) => React.ReactElement<{ onClick?: () => void }>);
   onSuccess?: (actionState: ActionState) => void;
 };
-
 const useConfirmDialog = ({
   title = 'Are you absolutely sure?',
   description = 'This action cannot be undone. Make sure you understand the consequences.',
@@ -86,8 +85,13 @@ const useConfirmDialog = ({
         <AlertDialogFooter>
           <AlertDialogCancel>Cancel</AlertDialogCancel>
           <AlertDialogAction asChild>
-            <form action={formAction}>
-              <Button type="submit">Confirm</Button>
+            <form action={formAction} className="!px-0 !py-0">
+              <Button
+                type="submit"
+                className="w-full h-full flex hover:bg-primary/10"
+              >
+                Confirm
+              </Button>
             </form>
           </AlertDialogAction>
         </AlertDialogFooter>

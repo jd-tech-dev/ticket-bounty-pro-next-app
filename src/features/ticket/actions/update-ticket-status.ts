@@ -19,7 +19,7 @@ export const updateTicketStatus = async (id: string, status: TicketStatus) => {
         id,
       },
     });
-    // explitic check like this is the best
+
     if (!ticket || !isOwner(user, ticket)) {
       return toActionState('ERROR', 'Not authorized');
     }
