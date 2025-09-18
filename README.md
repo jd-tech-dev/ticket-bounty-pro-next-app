@@ -1,6 +1,16 @@
-# Multi-tenant Ticket Bounty system with organization management
+# Multi-tenant system with organization management
+
+[![Next.js Build](https://github.com/jd-tech-dev/ticket-bounty-pro-next-app/actions/workflows/main.yml/badge.svg)](https://github.com/jd-tech-dev/ticket-bounty-pro-next-app/actions/workflows/main.yml)
 
 Ticket Bounty is a Next.js 15 application that helps organizations manage their work through a ticket-based system, with features like multi-tenant architecture, organization management, and user roles. Built from ground up with updates and new features while completing [The Road to Next](https://www.road-to-next.com/) course.
+
+## Technical Stack
+
++ 🌐 Frontend: **Next.js 15, TypeScript, React 19, Shadcn UI, Tailwind CSS**  
++ 🗄️ Backend: **Supabase, Prisma, Zod**  
++ 📊 State Management: **TanStack Query**  
++ 💳 Services: **AWS S3, Stripe, Resend, Inngest**  
++ 🔧 Utilities: **Nuqs, Big.js, Sonner** 
 
 ## Core Features 
 
@@ -12,14 +22,6 @@ Ticket Bounty is a Next.js 15 application that helps organizations manage their 
 + Ticket search functionality with filtering 
 + File Upload & Download with AWS S3, presigned URLs 
 + Background job processing for async operations
-
-## Technical Stack
-
-+ Frontend: Next.js 15, TypeScript, React 19, Shadcn UI, Tailwind CSS
-+ Backend: Supabase, Prisma, Zod
-+ State Management: TanStack Query
-+ Services: Stripe, Resend, Inngest
-+ Utilities: Nuqs, Big.js, Sonner
 
 ## Installation
 
