@@ -21,8 +21,9 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: 'The Road To Next',
-  description: 'My Road to Next app...',
+  title: 'Ticket Bounty',
+  description:
+    'A Next.js 15 multi-tenant application with organization management',
 };
 
 export default function RootLayout({
