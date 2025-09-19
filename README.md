@@ -4,6 +4,8 @@
 
 Ticket Bounty is a Next.js 15 application that helps organizations manage their work through a ticket-based system, with features like multi-tenant architecture, organization management, and user roles. Built from ground up with updates and new features while completing [The Road to Next](https://www.road-to-next.com/) course.
 
+<img src="./resources/ticket-bounty-demo.gif" width="540" alt="Ticket Bounty Demo" style="max-width: 100%; height: auto;">
+
 ## Technical Stack
 
 + 🌐 Frontend: **Next.js 15, TypeScript, React 19, Shadcn UI, Tailwind CSS**  
