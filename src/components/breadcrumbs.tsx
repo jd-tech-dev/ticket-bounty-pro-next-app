@@ -29,7 +29,7 @@ type BreadcrumbsProps = {
 
 const Breadcrumbs = ({ breadcrumbs }: BreadcrumbsProps) => {
   return (
-    <Breadcrumb>
+    <Breadcrumb className="px-2">
       <BreadcrumbList>
         {breadcrumbs.map((breadcrumb, index) => {
           let breadcrumbItem = (
